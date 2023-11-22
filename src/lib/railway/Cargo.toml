@@ -1,0 +1,18 @@
+[package]
+name = "railway"
+version = "0.1.0"
+edition = "2021"
+
+
+[lib]
+name = "railway"
+path = "src/lib.rs"
+
+
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"
+
+
+

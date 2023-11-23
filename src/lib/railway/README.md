@@ -2,7 +2,7 @@
 
 Small, fast and opinionated wayland client in pure Rust designed for:
 
-- Low overhead ( 0 dependecies)
+- Low overhead (0 dependecies, except `ash` :D)
 - Single threaded event loops ( `WaylandClient` is not thread safe )
 - FreeBSD (and maybe Linux)
 - Static linking and LTO
@@ -18,7 +18,6 @@ See [example](examples/basic.rs)
 cargo run --example basic
 
 ```
-
 
 ## Credits
 

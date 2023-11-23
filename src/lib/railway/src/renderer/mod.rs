@@ -22,6 +22,7 @@ use ash::Instance;
 
 use std::ffi::{CString, CStr};
 use ash::extensions::khr::Swapchain;
+use ash::vk::{PhysicalDevice, QueueFamilyProperties};
 
 
 pub struct Renderer {
@@ -80,32 +81,8 @@ impl Renderer {
         let physical_devices = unsafe {instance.enumerate_physical_devices()}
             .expect("Physical device enumeration error");
 
-
-        // TODO rewrite this, too complicated
-        let (pdevice, queue_family_index) = physical_devices
-            .iter()
-            .find_map(|pdevice| {
-                unsafe {instance.get_physical_device_queue_family_properties(*pdevice)}
-                    .iter()
-                    .enumerate()
-                    .find_map(|(index, info)| {
-                        let supports_graphic_and_surface =
-                            info.queue_flags.contains(vk::QueueFlags::GRAPHICS);
-                        // && surface_loader
-                        //     .get_physical_device_surface_support(
-                        //         *pdevice,
-                        //         index as u32,
-                        //         surface,
-                        //     )
-                        //     .unwrap();
-                        if supports_graphic_and_surface {
-                            Some((*pdevice, index))
-                        } else {
-                            None
-                        }
-                    })
-            })
-            .expect("Couldn't find suitable device.");
+        let (pdevice, queue_family_index) = Self::select_pdevice(&instance, physical_devices)
+            .expect("No graphics devices were found");
 
         // let priorities = [1.0];
         let queue_info = vk::DeviceQueueCreateInfo::default()
@@ -124,8 +101,6 @@ impl Renderer {
         let device: Device = unsafe {instance.create_device(pdevice, &device_create_info, None)}
             .expect("Logical device creation failed");
 
-
-
         return Self {
             entry,
             instance,
@@ -134,4 +109,40 @@ impl Renderer {
 
 
     }
+
+    /// Find appropriate physical device by inspecting memory and queue properties.
+    /// First good device is selected.
+    fn select_pdevice(instance: &Instance, pdevices: Vec<PhysicalDevice>) -> Option<(PhysicalDevice, usize)> {
+        for pdevice in pdevices.into_iter() {
+            let qprops = unsafe {instance.get_physical_device_queue_family_properties(pdevice)};
+            if let Some(idx) = Self::check_queue_props(qprops) {
+                return (pdevice, idx).into();
+            }
+        }
+        return None;
+    }
+
+    /// Check if device contains necessary queue family properties.
+    /// Currently checks if device has a graphics queue
+    fn check_queue_props(qprops: Vec<QueueFamilyProperties>) -> Option<usize> {
+        for (index, prop) in qprops.into_iter().enumerate() {
+            let supports_graphic_and_surface =
+                prop.queue_flags.contains(vk::QueueFlags::GRAPHICS);
+            // && surface_loader
+            //     .get_physical_device_surface_support(
+            //         *pdevice,
+            //         index as u32,
+            //         surface,
+            //     )
+            //     .unwrap();
+            if supports_graphic_and_surface {
+                return index.into()
+            }
+        }
+        return None
+    }
+
+
+
 }
+

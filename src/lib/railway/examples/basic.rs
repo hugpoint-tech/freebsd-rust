@@ -5,6 +5,8 @@ use railway::connection::WaylandConnection;
 use railway::types::events::*;
 use railway::types::enums::*;
 
+use railway::renderer::*;
+
 
 pub struct State {
     // Wayland Globals
@@ -192,6 +194,9 @@ impl EventHandler for State {
 }
 
 fn main() {
+
+    let renderer = Renderer::new();
+
     let c = WaylandConnection::new();
     let mut state = State::new(&c);
 

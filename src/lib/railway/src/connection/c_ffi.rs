@@ -80,18 +80,9 @@ pub struct MsgHdr<'a> {
 
 extern "C" {
 
-    pub fn recvmsg(
-        s: i32,
-        msghdr: *mut MsgHdr,
-        flags: i32,
-    ) -> isize;
+    pub fn recvmsg(s: i32, msghdr: *mut MsgHdr, flags: i32) -> isize;
 
-
-    pub fn sendmsg(
-        s: i32,
-        msghdr: *const MsgHdr,
-        flags: i32,
-    ) -> isize;
+    pub fn sendmsg(s: i32, msghdr: *const MsgHdr, flags: i32) -> isize;
 
     pub fn close(fd: i32) -> i32;
 

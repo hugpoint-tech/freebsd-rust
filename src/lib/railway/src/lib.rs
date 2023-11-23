@@ -1,5 +1,7 @@
+/// Wayland connection
 pub mod connection;
 pub mod types;
+pub mod renderer;
 
 
 // TODO support WAYLAND_DEBUG env var

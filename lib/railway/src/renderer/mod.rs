@@ -106,8 +106,6 @@ impl Renderer {
             instance,
             device
         }
-
-
     }
 
     /// Find appropriate physical device by inspecting memory and queue properties.

@@ -1,5 +1,7 @@
 #!/bin/sh
 
 set -eu
-
-bindgen --use-core  ./wrapper.h -o src/fbsd15-amd64.rs
+bindgen --use-core \
+    --default-macro-constant-type signed \
+    --output src/fbsd15_amd64.rs \
+    ./wrapper.h

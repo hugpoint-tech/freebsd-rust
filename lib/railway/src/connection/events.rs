@@ -19,6 +19,110 @@ impl WaylandConnectionPrivate {
 
         match obj {
             Object::Null => panic!("object of type null was sent by the server"),
+            Object::ZwpLinuxDmabufV1 => {
+                match op {
+                    0 =>{
+                        let event = ZwpLinuxDmabufV1FormatEvent {
+                            source_id: id,
+                            format: self.get_uint(),
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_dmabuf_v1_format(event, c);
+                    },
+                    1 =>{
+                        let event = ZwpLinuxDmabufV1ModifierEvent {
+                            source_id: id,
+                            format: self.get_uint(),
+                            modifier_hi: self.get_uint(),
+                            modifier_lo: self.get_uint(),
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_dmabuf_v1_modifier(event, c);
+                    },
+                    _ => (),
+                }
+            },
+            Object::ZwpLinuxBufferParamsV1 => {
+                match op {
+                    0 =>{
+                        let event = ZwpLinuxBufferParamsV1CreatedEvent {
+                            source_id: id,
+                            // new_id
+                            buffer: self.get_uint(),
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_buffer_params_v1_created(event, c);
+                    },
+                    1 =>{
+                        let event = ZwpLinuxBufferParamsV1FailedEvent {
+                            source_id: id,
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_buffer_params_v1_failed(event, c);
+                    },
+                    _ => (),
+                }
+            },
+            Object::ZwpLinuxDmabufFeedbackV1 => {
+                match op {
+                    0 =>{
+                        let event = ZwpLinuxDmabufFeedbackV1DoneEvent {
+                            source_id: id,
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_dmabuf_feedback_v1_done(event, c);
+                    },
+                    1 =>{
+                        let event = ZwpLinuxDmabufFeedbackV1FormatTableEvent {
+                            source_id: id,
+                            fd: self.get_fd(),
+                            size: self.get_uint(),
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_dmabuf_feedback_v1_format_table(event, c);
+                    },
+                    2 =>{
+                        let event = ZwpLinuxDmabufFeedbackV1MainDeviceEvent {
+                            source_id: id,
+                            device: self.get_vec(),
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_dmabuf_feedback_v1_main_device(event, c);
+                    },
+                    3 =>{
+                        let event = ZwpLinuxDmabufFeedbackV1TrancheDoneEvent {
+                            source_id: id,
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_dmabuf_feedback_v1_tranche_done(event, c);
+                    },
+                    4 =>{
+                        let event = ZwpLinuxDmabufFeedbackV1TrancheTargetDeviceEvent {
+                            source_id: id,
+                            device: self.get_vec(),
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_dmabuf_feedback_v1_tranche_target_device(event, c);
+                    },
+                    5 =>{
+                        let event = ZwpLinuxDmabufFeedbackV1TrancheFormatsEvent {
+                            source_id: id,
+                            indices: self.get_vec(),
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_dmabuf_feedback_v1_tranche_formats(event, c);
+                    },
+                    6 =>{
+                        let event = ZwpLinuxDmabufFeedbackV1TrancheFlagsEvent {
+                            source_id: id,
+                            flags: self.get_uint().into(),
+                        };
+                        println!("dispatch: event {:?}", event);
+                        state.on_zwp_linux_dmabuf_feedback_v1_tranche_flags(event, c);
+                    },
+                    _ => (),
+                }
+            },
             Object::XdgWmBase => {
                 match op {
                     0 =>{
@@ -129,7 +233,7 @@ impl WaylandConnectionPrivate {
                     _ => ()
                 }
             },
-
+        
             Object::WlDisplay => {
                 match op {
                     0 =>{
@@ -386,7 +490,7 @@ impl WaylandConnectionPrivate {
                     _ => ()
                 }
             },
-
+        
             Object::WlSurface => {
                 match op {
                     0 =>{

@@ -15,6 +15,18 @@
 // 6. Create Buffers from VkDeviceMemory and export them as fds
 // X. Cleanly Shitdown
 
+
+// VK_EXT_image_drm_format_modifier
+// VK_KHR_image_format_list
+// VK_EXT_external_memory_dma_buf
+// VK_KHR_external_memory_fd
+// VK_KHR_external_fence_fd
+
+// - Vulkan: the `VK_EXT_physical_device_drm`_ extension may be used to query the
+// DRM device used by a given ``VkPhysicalDevice``.
+
+mod wsi;
+
 use ash::vk;
 use ash::Entry;
 use ash::Device;
@@ -139,6 +151,12 @@ impl Renderer {
         }
         return None
     }
+
+
+    // TODO create pipeline
+    // TODO create fragment and vertex shaders
+    // TODO create rendering pass
+    // TODO create command buffer
 
 
 

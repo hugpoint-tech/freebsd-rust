@@ -312,7 +312,7 @@ impl WaylandConnectionPrivate {
 
 
     fn get_uint(&mut self) -> u32 {
-        // debug_assert!(self.recv_buf.len() + size_of::<u32>() >= self.recv_pos);
+        debug_assert!(self.recv_buf.len() + size_of::<u32>() >= self.recv_pos);
         let data = &self.recv_buf.as_slice()[self.recv_pos..self.recv_pos + size_of::<u32>()];
 
         unsafe {
@@ -326,13 +326,13 @@ impl WaylandConnectionPrivate {
         let data = &self.recv_buf.as_slice()[self.fd_pos..self.fd_pos + size_of::<i32>()];
         unsafe {
             let ptr = data.as_ptr() as *const i32;
-            self.recv_pos += 4;
+            self.fd_pos += 4;
             return *ptr;
         }
     }
 
     fn get_int(&mut self) -> i32 {
-        // debug_assert!(self.recv_buf.len() + size_of::<i32>() > self.recv_pos);
+        debug_assert!(self.recv_buf.len() + size_of::<i32>() > self.recv_pos);
         let data = &self.recv_buf.as_slice()[self.recv_pos..self.recv_pos + size_of::<i32>()];
         unsafe {
             let ptr = data.as_ptr() as *const i32;
@@ -342,7 +342,7 @@ impl WaylandConnectionPrivate {
     }
 
     fn get_str(&mut self) -> String {
-        // debug_assert!(self.recv_buf.len() > self.recv_pos);
+        debug_assert!(self.recv_buf.len() > self.recv_pos);
         let len = self.get_uint() as usize;
         let data = &self.recv_buf.as_slice()[self.recv_pos..self.recv_pos + len];
 
@@ -358,7 +358,7 @@ impl WaylandConnectionPrivate {
     }
 
     fn get_vec(&mut self) -> Vec<u8> {
-        // debug_assert!(self.recv_buf.len() > self.recv_pos);
+        debug_assert!(self.recv_buf.len() > self.recv_pos);
         let len = self.get_uint() as usize;
         let data = &self.recv_buf.as_slice()[self.recv_pos..self.recv_pos + len];
         if len == 0 {
@@ -376,7 +376,12 @@ impl WaylandConnectionPrivate {
     fn get_header(&mut self) -> MessageHeader {
         let word1 = self.get_uint();
         let word2 = self.get_uint();
-        MessageHeader::from_words(word1, word2)
+
+        let result = MessageHeader::from_words(word1, word2);
+        if result.len == 0 {
+            panic!("WTF")
+        }
+        return result
     }
 
     fn process_cmsgs(&mut self) {

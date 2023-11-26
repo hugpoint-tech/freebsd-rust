@@ -21,5 +21,19 @@ cargo run --example basic
 
 ## Credits
 
-
 - https://wayland-book.com
+- https://gitlab.freedesktop.org/mesa/vulkan-wsi-layer/-/tree/master/wsi/wayland
+
+## Why
+
+All modern GUI toolkits are written in C/C++
+
+GTK is contributor-hostile and too linux-centric.
+
+winit does not support layer shell: 
+- https://github.com/rust-windowing/winit/issues/2582
+- https://github.com/rust-windowing/winit/issues/2142
+
+smithay toolkit is extremely complicated and macro-heavy
+
+None of the existing solutions today support FreeBSD as a first-class citizenq

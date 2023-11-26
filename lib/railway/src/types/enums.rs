@@ -1,6 +1,169 @@
 use std::ops::{BitAnd, BitOr, BitOrAssign};
 #[allow(dead_code)]
 
+/// zwp_linux_buffer_params_v1:error enum
+#[repr(u32)]
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ZwpLinuxBufferParamsV1Error {
+    /// the dmabuf_batch object has already been used to create a wl_buffer
+    AlreadyUsed = 0u32,
+    /// plane index out of bounds
+    PlaneIdx = 1u32,
+    /// the plane index was already set
+    PlaneSet = 2u32,
+    /// missing or too many planes to create a buffer
+    Incomplete = 3u32,
+    /// format not supported
+    InvalidFormat = 4u32,
+    /// invalid width or height
+    InvalidDimensions = 5u32,
+    /// offset + stride * height goes out of dmabuf bounds
+    OutOfBounds = 6u32,
+    /// invalid wl_buffer resulted from importing dmabufs via                the create_immed request on given buffer_params
+    InvalidWlBuffer = 7u32,
+    /// Unexpected value was receieved on the wire
+    Unexpected,
+}
+
+impl From<u32> for ZwpLinuxBufferParamsV1Error {
+    fn from(value: u32) -> Self {
+        match value {
+            0 => Self::AlreadyUsed,
+            1 => Self::PlaneIdx,
+            2 => Self::PlaneSet,
+            3 => Self::Incomplete,
+            4 => Self::InvalidFormat,
+            5 => Self::InvalidDimensions,
+            6 => Self::OutOfBounds,
+            7 => Self::InvalidWlBuffer,
+            _ => Self::Unexpected,
+        }
+    }
+}
+
+/// zwp_linux_buffer_params_v1:flags enum
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ZwpLinuxBufferParamsV1Flags {
+    value: u32,
+}
+
+impl From<u32> for ZwpLinuxBufferParamsV1Flags {
+    fn from(value: u32) -> Self {
+        Self { value }
+    }
+}
+
+impl ZwpLinuxBufferParamsV1Flags {
+    /// contents are y-inverted
+    pub const YINVERT:Self = ZwpLinuxBufferParamsV1Flags{ value: 1 };
+    /// content is interlaced
+    pub const INTERLACED:Self = ZwpLinuxBufferParamsV1Flags{ value: 2 };
+    /// bottom field first
+    pub const BOTTOMFIRST:Self = ZwpLinuxBufferParamsV1Flags{ value: 4 };
+
+    pub fn new() -> Self {
+        ZwpLinuxBufferParamsV1Flags { value: 0 }
+    }
+
+    pub fn contains(&self, flag: Self) -> bool {
+        self.value & flag.value != 0
+    }
+
+    pub fn insert(&mut self, flag: Self) {
+        self.value |= flag.value;
+    }
+
+    pub fn remove(&mut self, flag: Self) {
+        self.value &= !flag.value;
+    }
+}
+
+impl BitAnd for ZwpLinuxBufferParamsV1Flags {
+    type Output = Self;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Self {
+            value: self.value & rhs.value,
+        }
+    }
+}
+
+impl BitOr for ZwpLinuxBufferParamsV1Flags {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Self {
+            value: self.value | rhs.value,
+        }
+    }
+}
+
+impl BitOrAssign for ZwpLinuxBufferParamsV1Flags {
+    fn bitor_assign(&mut self, rhs: Self) {
+        self.value |= rhs.value;
+    }
+}
+
+/// zwp_linux_dmabuf_feedback_v1:tranche_flags enum
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ZwpLinuxDmabufFeedbackV1TrancheFlags {
+    value: u32,
+}
+
+impl From<u32> for ZwpLinuxDmabufFeedbackV1TrancheFlags {
+    fn from(value: u32) -> Self {
+        Self { value }
+    }
+}
+
+impl ZwpLinuxDmabufFeedbackV1TrancheFlags {
+    /// direct scan-out tranche
+    pub const SCANOUT:Self = ZwpLinuxDmabufFeedbackV1TrancheFlags{ value: 1 };
+
+    pub fn new() -> Self {
+        ZwpLinuxDmabufFeedbackV1TrancheFlags { value: 0 }
+    }
+
+    pub fn contains(&self, flag: Self) -> bool {
+        self.value & flag.value != 0
+    }
+
+    pub fn insert(&mut self, flag: Self) {
+        self.value |= flag.value;
+    }
+
+    pub fn remove(&mut self, flag: Self) {
+        self.value &= !flag.value;
+    }
+}
+
+impl BitAnd for ZwpLinuxDmabufFeedbackV1TrancheFlags {
+    type Output = Self;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Self {
+            value: self.value & rhs.value,
+        }
+    }
+}
+
+impl BitOr for ZwpLinuxDmabufFeedbackV1TrancheFlags {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Self {
+            value: self.value | rhs.value,
+        }
+    }
+}
+
+impl BitOrAssign for ZwpLinuxDmabufFeedbackV1TrancheFlags {
+    fn bitor_assign(&mut self, rhs: Self) {
+        self.value |= rhs.value;
+    }
+}
+
 /// xdg_wm_base:error enum
 #[repr(u32)]
 #[allow(non_camel_case_types)]

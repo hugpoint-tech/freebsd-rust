@@ -2,6 +2,255 @@
 
 use crate::types::Fixed;
 use crate::types::enums;
+/// This event advertises one buffer format that the server supports.
+/// All the supported formats are advertised once when the client
+/// binds to this interface. A roundtrip after binding guarantees
+/// that the client has received all supported formats.
+///
+/// For the definition of the format codes, see the
+/// zwp_linux_buffer_params_v1::create request.
+///
+/// Starting version 4, the format event is deprecated and must not be
+/// sent by compositors. Instead, use get_default_feedback or
+/// get_surface_feedback.
+#[derive(Debug)]
+pub struct ZwpLinuxDmabufV1FormatEvent {
+    /// zwp_linux_dmabuf_v1:format event
+    /// id of the object the event came from
+    pub source_id: u32,
+    /// DRM_FORMAT code
+    pub format: u32,
+}
+
+/// This event advertises the formats that the server supports, along with
+/// the modifiers supported for each format. All the supported modifiers
+/// for all the supported formats are advertised once when the client
+/// binds to this interface. A roundtrip after binding guarantees that
+/// the client has received all supported format-modifier pairs.
+///
+/// For legacy support, DRM_FORMAT_MOD_INVALID (that is, modifier_hi ==
+/// 0x00ffffff and modifier_lo == 0xffffffff) is allowed in this event.
+/// It indicates that the server can support the format with an implicit
+/// modifier. When a plane has DRM_FORMAT_MOD_INVALID as its modifier, it
+/// is as if no explicit modifier is specified. The effective modifier
+/// will be derived from the dmabuf.
+///
+/// A compositor that sends valid modifiers and DRM_FORMAT_MOD_INVALID for
+/// a given format supports both explicit modifiers and implicit modifiers.
+///
+/// For the definition of the format and modifier codes, see the
+/// zwp_linux_buffer_params_v1::create and zwp_linux_buffer_params_v1::add
+/// requests.
+///
+/// Starting version 4, the modifier event is deprecated and must not be
+/// sent by compositors. Instead, use get_default_feedback or
+/// get_surface_feedback.
+#[derive(Debug)]
+pub struct ZwpLinuxDmabufV1ModifierEvent {
+    /// zwp_linux_dmabuf_v1:modifier event
+    /// id of the object the event came from
+    pub source_id: u32,
+    /// DRM_FORMAT code
+    pub format: u32,
+    /// high 32 bits of layout modifier
+    pub modifier_hi: u32,
+    /// low 32 bits of layout modifier
+    pub modifier_lo: u32,
+}
+
+/// This event indicates that the attempted buffer creation was
+/// successful. It provides the new wl_buffer referencing the dmabuf(s).
+///
+/// Upon receiving this event, the client should destroy the
+/// zwp_linux_buffer_params_v1 object.
+#[derive(Debug)]
+pub struct ZwpLinuxBufferParamsV1CreatedEvent {
+    /// zwp_linux_buffer_params_v1:created event
+    /// id of the object the event came from
+    pub source_id: u32,
+    /// the newly created wl_buffer
+    // new_id
+    pub buffer: u32,
+}
+
+/// This event indicates that the attempted buffer creation has
+/// failed. It usually means that one of the dmabuf constraints
+/// has not been fulfilled.
+///
+/// Upon receiving this event, the client should destroy the
+/// zwp_linux_buffer_params_v1 object.
+#[derive(Debug)]
+pub struct ZwpLinuxBufferParamsV1FailedEvent {
+    /// zwp_linux_buffer_params_v1:failed event
+    /// id of the object the event came from
+    pub source_id: u32,
+}
+
+/// This event is sent after all parameters of a wp_linux_dmabuf_feedback
+/// object have been sent.
+///
+/// This allows changes to the wp_linux_dmabuf_feedback parameters to be
+/// seen as atomic, even if they happen via multiple events.
+#[derive(Debug)]
+pub struct ZwpLinuxDmabufFeedbackV1DoneEvent {
+    /// zwp_linux_dmabuf_feedback_v1:done event
+    /// id of the object the event came from
+    pub source_id: u32,
+}
+
+/// This event provides a file descriptor which can be memory-mapped to
+/// access the format and modifier table.
+///
+/// The table contains a tightly packed array of consecutive format +
+/// modifier pairs. Each pair is 16 bytes wide. It contains a format as a
+/// 32-bit unsigned integer, followed by 4 bytes of unused padding, and a
+/// modifier as a 64-bit unsigned integer. The native endianness is used.
+///
+/// The client must map the file descriptor in read-only private mode.
+///
+/// Compositors are not allowed to mutate the table file contents once this
+/// event has been sent. Instead, compositors must create a new, separate
+/// table file and re-send feedback parameters. Compositors are allowed to
+/// store duplicate format + modifier pairs in the table.
+#[derive(Debug)]
+pub struct ZwpLinuxDmabufFeedbackV1FormatTableEvent {
+    /// zwp_linux_dmabuf_feedback_v1:format_table event
+    /// id of the object the event came from
+    pub source_id: u32,
+    /// table file descriptor
+    pub fd: std::os::fd::RawFd,
+    /// table size, in bytes
+    pub size: u32,
+}
+
+/// This event advertises the main device that the server prefers to use
+/// when direct scan-out to the target device isn't possible. The
+/// advertised main device may be different for each
+/// wp_linux_dmabuf_feedback object, and may change over time.
+///
+/// There is exactly one main device. The compositor must send at least
+/// one preference tranche with tranche_target_device equal to main_device.
+///
+/// Clients need to create buffers that the main device can import and
+/// read from, otherwise creating the dmabuf wl_buffer will fail (see the
+/// wp_linux_buffer_params.create and create_immed requests for details).
+/// The main device will also likely be kept active by the compositor,
+/// so clients can use it instead of waking up another device for power
+/// savings.
+///
+/// In general the device is a DRM node. The DRM node type (primary vs.
+/// render) is unspecified. Clients must not rely on the compositor sending
+/// a particular node type. Clients cannot check two devices for equality
+/// by comparing the dev_t value.
+///
+/// If explicit modifiers are not supported and the client performs buffer
+/// allocations on a different device than the main device, then the client
+/// must force the buffer to have a linear layout.
+#[derive(Debug)]
+pub struct ZwpLinuxDmabufFeedbackV1MainDeviceEvent {
+    /// zwp_linux_dmabuf_feedback_v1:main_device event
+    /// id of the object the event came from
+    pub source_id: u32,
+    /// device dev_t value
+    pub device: Vec<u8>,
+}
+
+/// This event splits tranche_target_device and tranche_formats events in
+/// preference tranches. It is sent after a set of tranche_target_device
+/// and tranche_formats events; it represents the end of a tranche. The
+/// next tranche will have a lower preference.
+#[derive(Debug)]
+pub struct ZwpLinuxDmabufFeedbackV1TrancheDoneEvent {
+    /// zwp_linux_dmabuf_feedback_v1:tranche_done event
+    /// id of the object the event came from
+    pub source_id: u32,
+}
+
+/// This event advertises the target device that the server prefers to use
+/// for a buffer created given this tranche. The advertised target device
+/// may be different for each preference tranche, and may change over time.
+///
+/// There is exactly one target device per tranche.
+///
+/// The target device may be a scan-out device, for example if the
+/// compositor prefers to directly scan-out a buffer created given this
+/// tranche. The target device may be a rendering device, for example if
+/// the compositor prefers to texture from said buffer.
+///
+/// The client can use this hint to allocate the buffer in a way that makes
+/// it accessible from the target device, ideally directly. The buffer must
+/// still be accessible from the main device, either through direct import
+/// or through a potentially more expensive fallback path. If the buffer
+/// can't be directly imported from the main device then clients must be
+/// prepared for the compositor changing the tranche priority or making
+/// wl_buffer creation fail (see the wp_linux_buffer_params.create and
+/// create_immed requests for details).
+///
+/// If the device is a DRM node, the DRM node type (primary vs. render) is
+/// unspecified. Clients must not rely on the compositor sending a
+/// particular node type. Clients cannot check two devices for equality by
+/// comparing the dev_t value.
+///
+/// This event is tied to a preference tranche, see the tranche_done event.
+#[derive(Debug)]
+pub struct ZwpLinuxDmabufFeedbackV1TrancheTargetDeviceEvent {
+    /// zwp_linux_dmabuf_feedback_v1:tranche_target_device event
+    /// id of the object the event came from
+    pub source_id: u32,
+    /// device dev_t value
+    pub device: Vec<u8>,
+}
+
+/// This event advertises the format + modifier combinations that the
+/// compositor supports.
+///
+/// It carries an array of indices, each referring to a format + modifier
+/// pair in the last received format table (see the format_table event).
+/// Each index is a 16-bit unsigned integer in native endianness.
+///
+/// For legacy support, DRM_FORMAT_MOD_INVALID is an allowed modifier.
+/// It indicates that the server can support the format with an implicit
+/// modifier. When a buffer has DRM_FORMAT_MOD_INVALID as its modifier, it
+/// is as if no explicit modifier is specified. The effective modifier
+/// will be derived from the dmabuf.
+///
+/// A compositor that sends valid modifiers and DRM_FORMAT_MOD_INVALID for
+/// a given format supports both explicit modifiers and implicit modifiers.
+///
+/// Compositors must not send duplicate format + modifier pairs within the
+/// same tranche or across two different tranches with the same target
+/// device and flags.
+///
+/// This event is tied to a preference tranche, see the tranche_done event.
+///
+/// For the definition of the format and modifier codes, see the
+/// wp_linux_buffer_params.create request.
+#[derive(Debug)]
+pub struct ZwpLinuxDmabufFeedbackV1TrancheFormatsEvent {
+    /// zwp_linux_dmabuf_feedback_v1:tranche_formats event
+    /// id of the object the event came from
+    pub source_id: u32,
+    /// array of 16-bit indexes
+    pub indices: Vec<u8>,
+}
+
+/// This event sets tranche-specific flags.
+///
+/// The scanout flag is a hint that direct scan-out may be attempted by the
+/// compositor on the target device if the client appropriately allocates a
+/// buffer. How to allocate a buffer that can be scanned out on the target
+/// device is implementation-defined.
+///
+/// This event is tied to a preference tranche, see the tranche_done event.
+#[derive(Debug)]
+pub struct ZwpLinuxDmabufFeedbackV1TrancheFlagsEvent {
+    /// zwp_linux_dmabuf_feedback_v1:tranche_flags event
+    /// id of the object the event came from
+    pub source_id: u32,
+    /// tranche flags
+    pub flags: enums::ZwpLinuxDmabufFeedbackV1TrancheFlags,
+}
+
 /// The ping event asks the client if it's still alive. Pass the
 /// serial specified in the event back to the compositor by sending
 /// a "pong" request back with the specified serial. See xdg_wm_base.pong.

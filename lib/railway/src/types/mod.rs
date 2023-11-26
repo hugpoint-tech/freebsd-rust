@@ -68,3 +68,14 @@ impl Fixed {
 // }
 
 
+#[cfg(test)]
+mod tests {
+    use super::MessageHeader;
+
+    #[test]
+    fn msg_header_test() {
+        let hdr = MessageHeader::from_words(1310724, 8);
+        assert!(hdr.len != 0);
+    }
+}
+

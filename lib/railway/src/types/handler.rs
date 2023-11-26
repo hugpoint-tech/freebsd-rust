@@ -3,6 +3,28 @@ use crate::connection::WaylandConnection;
 
 #[allow(unused)]
 pub trait EventHandler{
+    fn on_zwp_linux_dmabuf_v1_format(&mut self, event: ZwpLinuxDmabufV1FormatEvent, connection: &WaylandConnection) {}
+
+    fn on_zwp_linux_dmabuf_v1_modifier(&mut self, event: ZwpLinuxDmabufV1ModifierEvent, connection: &WaylandConnection) {}
+
+    fn on_zwp_linux_buffer_params_v1_created(&mut self, event: ZwpLinuxBufferParamsV1CreatedEvent, connection: &WaylandConnection) {}
+
+    fn on_zwp_linux_buffer_params_v1_failed(&mut self, event: ZwpLinuxBufferParamsV1FailedEvent, connection: &WaylandConnection) {}
+
+    fn on_zwp_linux_dmabuf_feedback_v1_done(&mut self, event: ZwpLinuxDmabufFeedbackV1DoneEvent, connection: &WaylandConnection) {}
+
+    fn on_zwp_linux_dmabuf_feedback_v1_format_table(&mut self, event: ZwpLinuxDmabufFeedbackV1FormatTableEvent, connection: &WaylandConnection) {}
+
+    fn on_zwp_linux_dmabuf_feedback_v1_main_device(&mut self, event: ZwpLinuxDmabufFeedbackV1MainDeviceEvent, connection: &WaylandConnection) {}
+
+    fn on_zwp_linux_dmabuf_feedback_v1_tranche_done(&mut self, event: ZwpLinuxDmabufFeedbackV1TrancheDoneEvent, connection: &WaylandConnection) {}
+
+    fn on_zwp_linux_dmabuf_feedback_v1_tranche_target_device(&mut self, event: ZwpLinuxDmabufFeedbackV1TrancheTargetDeviceEvent, connection: &WaylandConnection) {}
+
+    fn on_zwp_linux_dmabuf_feedback_v1_tranche_formats(&mut self, event: ZwpLinuxDmabufFeedbackV1TrancheFormatsEvent, connection: &WaylandConnection) {}
+
+    fn on_zwp_linux_dmabuf_feedback_v1_tranche_flags(&mut self, event: ZwpLinuxDmabufFeedbackV1TrancheFlagsEvent, connection: &WaylandConnection) {}
+
     fn on_xdg_wm_base_ping(&mut self, event: XdgWmBasePingEvent, connection: &WaylandConnection) {}
 
     fn on_xdg_surface_configure(&mut self, event: XdgSurfaceConfigureEvent, connection: &WaylandConnection) {}

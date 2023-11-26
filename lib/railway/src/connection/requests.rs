@@ -13,6 +13,128 @@ pub fn enqueue(&self, req: Request) -> u32 {
         let mut new_id: u32 = 0;
 
         match req {
+            // zwp_linux_dmabuf_v1:destroy
+            ZwpLinuxDmabufV1Destroy{sendto} => {
+                let hdr_pos = data.send_buf.len();
+                data.send_buf.set_len(hdr_pos + 8);
+                let hdr = MessageHeader {
+                    obj_id: sendto,
+                    opcode: 0u16,
+                    len: (data.send_buf.len() - hdr_pos) as u16
+                };
+                data.write_header(hdr, hdr_pos);
+            },
+            // zwp_linux_dmabuf_v1:create_params
+            ZwpLinuxDmabufV1CreateParams{sendto} => {
+                new_id = data.allocate_id(Object::ZwpLinuxBufferParamsV1);
+                let hdr_pos = data.send_buf.len();
+                data.send_buf.set_len(hdr_pos + 8);
+                data.write_uint(new_id);
+                let hdr = MessageHeader {
+                    obj_id: sendto,
+                    opcode: 1u16,
+                    len: (data.send_buf.len() - hdr_pos) as u16
+                };
+                data.write_header(hdr, hdr_pos);
+            },
+            // zwp_linux_dmabuf_v1:get_default_feedback
+            ZwpLinuxDmabufV1GetDefaultFeedback{sendto} => {
+                new_id = data.allocate_id(Object::ZwpLinuxDmabufFeedbackV1);
+                let hdr_pos = data.send_buf.len();
+                data.send_buf.set_len(hdr_pos + 8);
+                data.write_uint(new_id);
+                let hdr = MessageHeader {
+                    obj_id: sendto,
+                    opcode: 2u16,
+                    len: (data.send_buf.len() - hdr_pos) as u16
+                };
+                data.write_header(hdr, hdr_pos);
+            },
+            // zwp_linux_dmabuf_v1:get_surface_feedback
+            ZwpLinuxDmabufV1GetSurfaceFeedback{sendto,surface} => {
+                new_id = data.allocate_id(Object::ZwpLinuxDmabufFeedbackV1);
+                let hdr_pos = data.send_buf.len();
+                data.send_buf.set_len(hdr_pos + 8);
+                data.write_uint(new_id);
+                data.write_uint(surface);
+                let hdr = MessageHeader {
+                    obj_id: sendto,
+                    opcode: 3u16,
+                    len: (data.send_buf.len() - hdr_pos) as u16
+                };
+                data.write_header(hdr, hdr_pos);
+            },
+            // zwp_linux_buffer_params_v1:destroy
+            ZwpLinuxBufferParamsV1Destroy{sendto} => {
+                let hdr_pos = data.send_buf.len();
+                data.send_buf.set_len(hdr_pos + 8);
+                let hdr = MessageHeader {
+                    obj_id: sendto,
+                    opcode: 0u16,
+                    len: (data.send_buf.len() - hdr_pos) as u16
+                };
+                data.write_header(hdr, hdr_pos);
+            },
+            // zwp_linux_buffer_params_v1:add
+            ZwpLinuxBufferParamsV1Add{sendto,fd,plane_idx,offset,stride,modifier_hi,modifier_lo} => {
+                let hdr_pos = data.send_buf.len();
+                data.send_buf.set_len(hdr_pos + 8);
+                data.write_fd(fd);
+                data.write_uint(plane_idx);
+                data.write_uint(offset);
+                data.write_uint(stride);
+                data.write_uint(modifier_hi);
+                data.write_uint(modifier_lo);
+                let hdr = MessageHeader {
+                    obj_id: sendto,
+                    opcode: 1u16,
+                    len: (data.send_buf.len() - hdr_pos) as u16
+                };
+                data.write_header(hdr, hdr_pos);
+            },
+            // zwp_linux_buffer_params_v1:create
+            ZwpLinuxBufferParamsV1Create{sendto,width,height,format,flags} => {
+                let hdr_pos = data.send_buf.len();
+                data.send_buf.set_len(hdr_pos + 8);
+                data.write_int(width);
+                data.write_int(height);
+                data.write_uint(format);
+                data.write_uint(flags);
+                let hdr = MessageHeader {
+                    obj_id: sendto,
+                    opcode: 2u16,
+                    len: (data.send_buf.len() - hdr_pos) as u16
+                };
+                data.write_header(hdr, hdr_pos);
+            },
+            // zwp_linux_buffer_params_v1:create_immed
+            ZwpLinuxBufferParamsV1CreateImmed{sendto,width,height,format,flags} => {
+                new_id = data.allocate_id(Object::WlBuffer);
+                let hdr_pos = data.send_buf.len();
+                data.send_buf.set_len(hdr_pos + 8);
+                data.write_uint(new_id);
+                data.write_int(width);
+                data.write_int(height);
+                data.write_uint(format);
+                data.write_uint(flags);
+                let hdr = MessageHeader {
+                    obj_id: sendto,
+                    opcode: 3u16,
+                    len: (data.send_buf.len() - hdr_pos) as u16
+                };
+                data.write_header(hdr, hdr_pos);
+            },
+            // zwp_linux_dmabuf_feedback_v1:destroy
+            ZwpLinuxDmabufFeedbackV1Destroy{sendto} => {
+                let hdr_pos = data.send_buf.len();
+                data.send_buf.set_len(hdr_pos + 8);
+                let hdr = MessageHeader {
+                    obj_id: sendto,
+                    opcode: 0u16,
+                    len: (data.send_buf.len() - hdr_pos) as u16
+                };
+                data.write_header(hdr, hdr_pos);
+            },
             // xdg_wm_base:destroy
             XdgWmBaseDestroy{sendto} => {
                 let hdr_pos = data.send_buf.len();
